@@ -35,25 +35,63 @@ pip install -r requirements.txt
 ```
 fruit-classification/
 │
-├── data/
-│   ├── train/
-│   │   ├── fruit1/
-│   │   ├── fruit2/
-│   │   └── fruit3/
-│   └── test/
-│       ├── fruit1/
-│       ├── fruit2/
-│       └── fruit3/
+├── data/                          # Dataset directory
+│   ├── train/                     # Training data
+│   │   ├── apples/               # Apple images
+│   │   ├── bananas/              # Banana images
+│   │   └── oranges/              # Orange images
+│   │
+│   ├── test/                     # Testing data
+│   │   ├── apples/
+│   │   ├── bananas/
+│   │   └── oranges/
+│   │
+│   └── validation/               # Validation data
+│       ├── apples/
+│       ├── bananas/
+│       └── oranges/
 │
-├── src/
-│   ├── train.py
-│   ├── predict.py
-│   └── model.py
+├── src/                          # Source code
+│   ├── __init__.py
+│   ├── config.py                 # Configuration settings
+│   ├── data_loader.py           # Data loading utilities
+│   ├── model.py                 # Model architecture definition
+│   ├── train.py                 # Training script
+│   ├── predict.py               # Prediction script
+│   └── utils.py                 # Utility functions
 │
-├── requirements.txt
-├── README.md
-└── .gitignore
-```
+├── notebooks/                    # Jupyter notebooks
+│   ├── data_exploration.ipynb   # Dataset analysis
+│   ├── model_training.ipynb     # Training experiments
+│   └── results_analysis.ipynb   # Performance analysis
+│
+├── models/                      # Saved models
+│   ├── checkpoints/            # Training checkpoints
+│   └── fruit_classifier.h5     # Final trained model
+│
+├── logs/                       # Training logs
+│   └── tensorboard/           # Tensorboard logs
+│
+├── tests/                     # Unit tests
+│   ├── __init__.py
+│   ├── test_data_loader.py
+│   ├── test_model.py
+│   └── test_utils.py
+│
+├── docs/                      # Documentation
+│   ├── api.md                # API documentation
+│   ├── setup.md              # Setup guide
+│   └── usage.md              # Usage examples
+│
+├── scripts/                   # Utility scripts
+│   ├── setup.sh              # Environment setup
+│   └── download_data.sh      # Dataset download
+│
+├── .gitignore                # Git ignore file
+├── LICENSE                   # License file
+├── README.md                 # Project documentation
+├── requirements.txt          # Project dependencies
+└── setup.py                 # Package setup file
 
 ## 🚀 Usage
 
