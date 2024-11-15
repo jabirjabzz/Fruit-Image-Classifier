@@ -15,9 +15,9 @@ EPOCHS = 10
 DROPOUT_RATE = 0.5
 # Paths
 DATA_DIR = 'data'
-TRAIN_DIR = f'{DATA_DIR}/train'
-TEST_DIR = f'{DATA_DIR}/test'
-VALIDATION_DIR = f'{DATA_DIR}/validation'
+TRAIN_DIR = '/workspaces/Fruit-Image-Classifier/datasets/moltean/fruits/versions/11/fruits-360_dataset_100x100/fruits-360/Training/train'
+TEST_DIR = f'/workspaces/Fruit-Image-Classifier/datasets/moltean/fruits/versions/11/fruits-360_dataset_100x100/fruits-360/Test'
+VALIDATION_DIR = "/workspaces/Fruit-Image-Classifier/datasets/moltean/fruits/versions/11/fruits-360_dataset_100x100/fruits-360/Training/validation"
 MODEL_SAVE_PATH = 'models/fruit_classifier.h5'
 CHECKPOINT_DIR = 'models/checkpoints'
 LOG_DIR = 'logs'

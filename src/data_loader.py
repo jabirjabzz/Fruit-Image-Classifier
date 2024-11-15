@@ -1,7 +1,7 @@
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 import tensorflow as tf
 from pathlib import Path
-from . import config
+from src import config
 
 def create_data_generators():
     """Create train, validation, and test data generators."""
