@@ -1,58 +1,76 @@
 import os
-import tensorflow as tf
-from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from torch.utils.tensorboard import SummaryWriter
+from torch.utils.data import DataLoader
+from torchvision import transforms, datasets
 from datetime import datetime
 from . import config
 from .model import create_model
-from .data_loader import create_data_generators
 
 def train_model():
-    """Train the model and save it."""
-    # Create directories if they don't exist
+    # Directories
     os.makedirs(config.CHECKPOINT_DIR, exist_ok=True)
     os.makedirs(config.LOG_DIR, exist_ok=True)
 
-    # Create data generators
-    train_generator, validation_generator, _ = create_data_generators()
+    # Data transformations
+    transform = transforms.Compose([
+        transforms.Resize((config.IMG_HEIGHT, config.IMG_WIDTH)),
+        transforms.RandomHorizontalFlip() if config.HORIZONTAL_FLIP else transforms.Lambda(lambda x: x),
+        transforms.RandomRotation(config.ROTATION_RANGE),
+        transforms.ToTensor(),
+        transforms.Normalize([0.5], [0.5])
+    ])
 
-    # Create model
+    # Data loaders
+    train_dataset = datasets.ImageFolder(config.TRAIN_DIR, transform=transform)
+    train_loader = DataLoader(train_dataset, batch_size=config.BATCH_SIZE, shuffle=True)
+    validation_dataset = datasets.ImageFolder(config.VALIDATION_DIR, transform=transform)
+    validation_loader = DataLoader(validation_dataset, batch_size=config.BATCH_SIZE)
+
+    # Model, loss, optimizer
     model = create_model()
+    criterion = nn.CrossEntropyLoss()
+    optimizer = optim.Adam(model.parameters(), lr=config.LEARNING_RATE)
 
-    # Callbacks
-    callbacks = [
-        # Model checkpoint to save best weights
-        ModelCheckpoint(
-            filepath=os.path.join(config.CHECKPOINT_DIR, 'model_{epoch:02d}_{val_accuracy:.3f}.h5'),
-            monitor='val_accuracy',
-            save_best_only=True,
-            mode='max',
-            verbose=1
-        ),
-        # Early stopping to prevent overfitting
-        EarlyStopping(
-            monitor='val_loss',
-            patience=5,
-            restore_best_weights=True
-        ),
-        # TensorBoard logging
-        TensorBoard(
-            log_dir=os.path.join(config.LOG_DIR, datetime.now().strftime("%Y%m%d-%H%M%S")),
-            histogram_freq=1
-        )
-    ]
+    # TensorBoard writer
+    writer = SummaryWriter(log_dir=os.path.join(config.LOG_DIR, datetime.now().strftime("%Y%m%d-%H%M%S")))
 
-    # Train the model
-    history = model.fit(
-        train_generator,
-        epochs=config.EPOCHS,
-        validation_data=validation_generator,
-        callbacks=callbacks
-    )
+    # Training loop
+    best_accuracy = 0.0
+    for epoch in range(config.EPOCHS):
+        model.train()
+        running_loss = 0.0
+        for inputs, labels in train_loader:
+            optimizer.zero_grad()
+            outputs = model(inputs)
+            loss = criterion(outputs, labels)
+            loss.backward()
+            optimizer.step()
+            running_loss += loss.item()
 
-    # Save the final model
-    model.save(config.MODEL_SAVE_PATH)
-    
-    return history
+        # Validation
+        model.eval()
+        correct = 0
+        total = 0
+        with torch.no_grad():
+            for inputs, labels in validation_loader:
+                outputs = model(inputs)
+                _, predicted = torch.max(outputs, 1)
+                total += labels.size(0)
+                correct += (predicted == labels).sum().item()
+        accuracy = 100 * correct / total
 
-if __name__ == '__main__':
-    train_model()
+        # Save best model
+        if accuracy > best_accuracy:
+            best_accuracy = accuracy
+            torch.save(model.state_dict(), os.path.join(config.CHECKPOINT_DIR, f"model_epoch_{epoch+1}_accuracy_{accuracy:.2f}.pth"))
+
+        # Logging
+        writer.add_scalar("Loss/Train", running_loss / len(train_loader), epoch)
+        writer.add_scalar("Accuracy/Validation", accuracy, epoch)
+        print(f"Epoch {epoch+1}, Loss: {running_loss:.4f}, Validation Accuracy: {accuracy:.2f}%")
+
+    writer.close()
+    return model
