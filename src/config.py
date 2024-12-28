@@ -1,3 +1,5 @@
+import os
+
 """
 Configuration settings for the Fruit Classification project (PyTorch version).
 """
