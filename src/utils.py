@@ -1,69 +1,64 @@
+import torch
 import matplotlib.pyplot as plt
 import numpy as np
 import os
-from tensorflow.keras.preprocessing.image import load_img, img_to_array
+from torchvision.utils import make_grid
 from . import config
 
-def plot_training_history(history):
+def plot_training_history(training_losses, validation_accuracies):
     """Plot training history."""
+    epochs = len(training_losses)
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 4))
     
-    # Accuracy plot
-    ax1.plot(history.history['accuracy'], label='Training Accuracy')
-    ax1.plot(history.history['val_accuracy'], label='Validation Accuracy')
-    ax1.set_title('Model Accuracy')
+    # Loss plot
+    ax1.plot(range(1, epochs + 1), training_losses, label='Training Loss')
+    ax1.set_title('Model Loss')
     ax1.set_xlabel('Epoch')
-    ax1.set_ylabel('Accuracy')
+    ax1.set_ylabel('Loss')
     ax1.legend()
     
-    # Loss plot
-    ax2.plot(history.history['loss'], label='Training Loss')
-    ax2.plot(history.history['val_loss'], label='Validation Loss')
-    ax2.set_title('Model Loss')
+    # Accuracy plot
+    ax2.plot(range(1, epochs + 1), validation_accuracies, label='Validation Accuracy')
+    ax2.set_title('Model Accuracy')
     ax2.set_xlabel('Epoch')
-    ax2.set_ylabel('Loss')
+    ax2.set_ylabel('Accuracy')
     ax2.legend()
     
     plt.tight_layout()
     plt.show()
 
-def display_sample_images(num_images=5):
+def display_sample_images(dataset, num_images=5):
     """Display sample images from each class."""
-    fig, axes = plt.subplots(len(config.CLASS_NAMES), num_images, figsize=(15, 10))
-    
-    for i, class_name in enumerate(config.CLASS_NAMES):
-        class_path = os.path.join(config.TRAIN_DIR, class_name)
-        images = os.listdir(class_path)[:num_images]
-        
-        for j, image_name in enumerate(images):
-            image_path = os.path.join(class_path, image_name)
-            img = load_img(image_path, target_size=(config.IMG_HEIGHT, config.IMG_WIDTH))
-            axes[i, j].imshow(img)
-            axes[i, j].axis('off')
-            if j == 0:
-                axes[i, j].set_title(class_name)
-    
-    plt.tight_layout()
+    loader = torch.utils.data.DataLoader(dataset, batch_size=num_images, shuffle=True)
+    data_iter = iter(loader)
+    images, labels = next(data_iter)
+
+    # Plot a batch of images
+    plt.figure(figsize=(15, 5))
+    grid = make_grid(images, nrow=num_images)
+    plt.imshow(grid.permute(1, 2, 0))
+    plt.axis('off')
     plt.show()
 
-def create_confusion_matrix(model, test_generator):
+def create_confusion_matrix(model, dataloader, class_names):
     """Create and plot confusion matrix."""
     from sklearn.metrics import confusion_matrix
     import seaborn as sns
-    
-    # Get predictions
-    predictions = model.predict(test_generator)
-    predicted_classes = np.argmax(predictions, axis=1)
-    true_classes = test_generator.classes
-    
-    # Create confusion matrix
-    cm = confusion_matrix(true_classes, predicted_classes)
-    
-    # Plot confusion matrix
+
+    all_preds = []
+    all_labels = []
+
+    model.eval()
+    with torch.no_grad():
+        for inputs, labels in dataloader:
+            outputs = model(inputs)
+            _, preds = torch.max(outputs, 1)
+            all_preds.extend(preds.cpu().numpy())
+            all_labels.extend(labels.cpu().numpy())
+
+    cm = confusion_matrix(all_labels, all_preds)
     plt.figure(figsize=(10, 8))
-    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
-                xticklabels=config.CLASS_NAMES,
-                yticklabels=config.CLASS_NAMES)
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=class_names, yticklabels=class_names)
     plt.title('Confusion Matrix')
     plt.xlabel('Predicted')
     plt.ylabel('True')
