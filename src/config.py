@@ -1,5 +1,5 @@
 """
-Configuration settings for the Fruit Classification project.
+Configuration settings for the Fruit Classification project (PyTorch version).
 """
 
 # Data parameters
@@ -17,10 +17,10 @@ DROPOUT_RATE = 0.5
 
 # Paths
 DATA_DIR = 'data'
-TRAIN_DIR = f'{DATA_DIR}/train'
-TEST_DIR = f'{DATA_DIR}/test'
-VALIDATION_DIR = f'{DATA_DIR}/validation'
-MODEL_SAVE_PATH = 'models/fruit_classifier.h5'
+TRAIN_DIR = os.path.join(DATA_DIR, 'train')
+VALIDATION_DIR = os.path.join(DATA_DIR, 'validation')
+TEST_DIR = os.path.join(DATA_DIR, 'test')
+MODEL_SAVE_PATH = 'models/fruit_classifier.pth'
 CHECKPOINT_DIR = 'models/checkpoints'
 LOG_DIR = 'logs'
 
@@ -29,9 +29,4 @@ CLASS_NAMES = ['apples', 'bananas', 'oranges']
 
 # Data augmentation parameters
 ROTATION_RANGE = 20
-WIDTH_SHIFT_RANGE = 0.2
-HEIGHT_SHIFT_RANGE = 0.2
-SHEAR_RANGE = 0.2
-ZOOM_RANGE = 0.2
 HORIZONTAL_FLIP = True
-FILL_MODE = 'nearest'
