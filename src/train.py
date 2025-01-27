@@ -31,6 +31,7 @@ def train_model():
 
     # Model, loss, optimizer
     model = create_model()
+    model = model.to('cuda')  # Move model to GPU
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=config.LEARNING_RATE)
 
@@ -43,6 +44,9 @@ def train_model():
         model.train()
         running_loss = 0.0
         for inputs, labels in train_loader:
+            inputs = inputs.to('cuda')  # Move inputs to GPU
+            labels = labels.to('cuda')  # Move labels to GPU
+
             optimizer.zero_grad()
             outputs = model(inputs)
             loss = criterion(outputs, labels)
@@ -56,6 +60,9 @@ def train_model():
         total = 0
         with torch.no_grad():
             for inputs, labels in validation_loader:
+                inputs = inputs.to('cuda')  # Move inputs to GPU
+                labels = labels.to('cuda')  # Move labels to GPU
+
                 outputs = model(inputs)
                 _, predicted = torch.max(outputs, 1)
                 total += labels.size(0)
