@@ -74,3 +74,6 @@ def train_model():
 
     writer.close()
     return model
+
+if __name__ == "__main__":
+    train_model()
