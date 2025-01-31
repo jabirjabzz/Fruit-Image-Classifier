@@ -97,7 +97,7 @@ fruit-classification/
 
 ### Training the Model
 
-1. Prepare your dataset in the following structure:
+1. Prepare your dataset :
 ```
 data/
 ├── train/
