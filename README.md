@@ -97,7 +97,7 @@ fruit-classification/
 
 ### Training the Model
 
-1. Prepare your dataset in the following structure:
+1. Prepare your dataset :
 ```
 data/
 ├── train/
@@ -168,3 +168,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 Mohammed Jabir Hussain  - jabirmoh07@gmail.com
 
 Project Link: [https://github.com/jabirjabzz/Fruit-Image-Classifier]
+project done by mohammed jabir hussain
