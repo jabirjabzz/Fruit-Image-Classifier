@@ -157,3 +157,4 @@ if __name__ == "__main__":
     model, log_dir = train_model()
     print(f"\nTraining completed! To view training metrics, run:")
     print(f"tensorboard --logdir={log_dir}")
+

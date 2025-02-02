@@ -99,4 +99,6 @@ if __name__ == "__main__":
         if Path(dataset_dir).exists():
             logging.error(f"Contents of {dataset_dir}:")
             for item in Path(dataset_dir).iterdir():
+
                 logging.error(f"- {item.name}")
+
